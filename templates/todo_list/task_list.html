@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>
+    ToDo List
+    <a href="{% url 'todo_list:task-create' %}" class="btn btn-primary link-to-page">
+      Create
+    </a>
+  </h1>
+
+  {% if tasks %}
+    <table class="table">
+      <tr>
+        <th>Task</th>
+        <th>Change status</th>
+      </tr>
+
+      {% for task in tasks %}
+        <tr>
+          <td>
+            <strong>{{ task.content }}</strong>
+
+            {% if task.is_done %}
+              <span style="background-color: green; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 10px;">
+                Done!
+              </span>
+            {% else %}
+              <span style="background-color: red; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 10px;">
+                NOT done
+              </span>
+            {% endif %}
+
+            <br><br>
+            <p>Created: {{ task.created }}</p>
+            <p>Deadline: {{ task.deadline }}</p>
+
+            <p><strong>Tag:</strong>
+              {% for tag in task.tags.all %}
+                {{ tag.name }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </p>
+
+            <a href="{% url 'todo_list:task-update' pk=task.id %}">
+              Update task
+            </a>
+            <a style="color: red"
+               href="{% url 'todo_list:task-delete' pk=task.id %}">
+              Delete task
+            </a>
+          </td>
+        <td>
+            <form action="{% url 'todo_list:change-status' pk=task.id %}" method="post">
+              {% csrf_token %}
+              {% if task.is_done %}
+                <button class="btn btn-success" type="submit">Complete</button>
+              {% else %}
+                <button class="btn btn-primary" type="submit">Undo</button>
+              {% endif %}
+            </form>
+        </td>
+        </tr>
+
+      {% endfor %}
+    </table>
+  {% else %}
+      <p>There are no tasks in the ToDo list.</p>
+  {% endif %}
+{% endblock %}
